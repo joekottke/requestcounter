@@ -1,0 +1,49 @@
+pipeline {
+  agent {
+    kubernetes {
+      slaveConnectTimeout 240000
+      activeDeadlineSeconds 43200
+      yamlFile 'jenkins/default-pod.yaml'
+    }
+  }
+  stages {
+    stage('Branch Info') {
+      steps {
+        echo "env.BRANCH_NAME: " + env.BRANCH_NAME
+        echo "env.GIT_BRANCH: " + env.GIT_BRANCH
+        script {
+          env.SHORT_BRANCH_NAME=sh(returnStdout: true, script: "git rev-parse --abbrev-ref HEAD").trim()
+          if(env.SHORT_BRANCH_NAME.startsWith('deploy/')) {
+            // Remove the 'deploy/' from the branch name to get network name
+            def re = ~/^deploy\//
+            env.NETWORK_FROM_BRANCH = env.SHORT_BRANCH_NAME - re
+          }
+        }
+        echo "Printenv Output: "
+        sh 'printenv'
+      }
+    }
+    stage('Test') {
+      steps {
+        container('python3') {
+          dir('src') {
+            sh 'pip3 install -r requirements.txt'
+            sh 'python3 test_requestcounter.py'
+          }
+        }
+      }
+    }
+    stage('Build Container') {
+      when {
+        expression {
+          env.SHORT_BRANCH_NAME == 'master'
+        }
+      }
+      steps {
+        container('kaniko') {
+          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${BUILD_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
+        }
+      }
+    }
+  }
+}
