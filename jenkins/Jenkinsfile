@@ -45,7 +45,7 @@ pipeline {
           script{
             // Upload happens on the build master.  So we must accept the file, then stash it, then unstash it
             def inputFile = input message: 'Upload signature file', parameters: [file(name: "build.signature")]
-            stash name: 'uploaded_signature' includes: inputFile
+            stash name: 'uploaded_signature' include: inputFile
           }
           dir('src/build-info') {
             sh 'echo ${GIT_COMMIT} > build.commithash'
