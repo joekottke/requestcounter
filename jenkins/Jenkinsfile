@@ -42,18 +42,19 @@ pipeline {
       }
       steps {
         container('jnlp') {
+          script{
+            // Upload happens on the build master.  So we must accept the file, then stash it, then unstash it
+            def inputFile = input message: 'Upload signature file', parameters: [file(name: "build.signature")]
+            stash name: 'uploaded_signature' includes: inputFile
+          }
           dir('src/build-info') {
             sh 'echo ${GIT_COMMIT} > build.commithash'
             sh 'echo ${SHORT_BRANCH_NAME} > build.branch'
             sh 'echo ${TAG_NUMBER} > build.tagnumber'
             sh 'md5sum ../requestcounter.py > build.md5'
+            unstash 'uploaded_signature'
+            sh 'ls -alR'
           }
-          script{
-            def inputFile = input message: 'Upload signature file', parameters: [file(name: "build.signature")]
-            env.UPLOAD_FILEPATH = inputFile
-          }
-          sh 'echo $UPLOAD_FILEPATH'
-          sh 'sleep 600'
         }
         container('kaniko') {
           sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${TAG_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
