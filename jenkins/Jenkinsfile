@@ -46,7 +46,10 @@ pipeline {
             sh 'echo ${GIT_COMMIT} > build.commithash'
             sh 'echo ${SHORT_BRANCH_NAME} > build.branch'
             sh 'echo ${TAG_NUMBER} > build.tagnumber'
-            sh 'md5sum ../requestcounter.py > build.signature'
+            sh 'md5sum ../requestcounter.py > build.md5'
+          }
+          script{
+            def inputFile = input message: 'Upload signature file', parameters: [file(name: "$workspace/src/build-info/build.signature")]
           }
         }
         container('kaniko') {
