@@ -49,7 +49,7 @@ pipeline {
             sh 'md5sum ../requestcounter.py > build.md5'
           }
           script{
-            def inputFile = input message: 'Upload signature file', parameters: [file("build.signature")]
+            def inputFile = input message: 'Upload signature file', parameters: [file(name: "build.signature")]
             env.UPLOAD_FILEPATH = inputFile
           }
           sh 'echo $UPLOAD_FILEPATH'
