@@ -49,8 +49,11 @@ pipeline {
             sh 'md5sum ../requestcounter.py > build.md5'
           }
           script{
-            def inputFile = input message: 'Upload signature file', parameters: [file(name: "$workspace/src/build-info/build.signature")]
+            def inputFile = input message: 'Upload signature file', parameters: [file("build.signature")]
+            env.UPLOAD_FILEPATH = inputFile
           }
+          sh 'echo $UPLOAD_FILEPATH'
+          sh 'sleep 600'
         }
         container('kaniko') {
           sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${TAG_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
