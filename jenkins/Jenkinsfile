@@ -15,10 +15,10 @@ pipeline {
             // Remove the 'deploy/' from the branch name to get network name
             def re = ~/^deploy\//
             env.NETWORK_FROM_BRANCH = env.SHORT_BRANCH_NAME - re
-
-            // Set the tag number (date-based)
-            env.TAG_NUMBER = sh(returnStdout: true, script: 'date +"%Y%m%d%H%m%S"').trim()
           }
+
+          // Set the tag number (date-based)
+          env.TAG_NUMBER = sh(returnStdout: true, script: 'date +"%Y%m%d%H%m%S"').trim()
         }
         echo "Printenv Output: "
         sh 'printenv'

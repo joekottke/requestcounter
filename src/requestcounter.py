@@ -18,10 +18,8 @@ class AtomicCounter(object):
         with self._lock:
             self.value = num
 
-
 counter = AtomicCounter()
 app = Flask('requestcounter')
-
 
 @app.route('/')
 def index():
