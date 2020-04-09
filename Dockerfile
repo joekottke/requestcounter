@@ -7,7 +7,7 @@ COPY src/requirements.txt /app
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY src/requestcounter.py /app
-COPY build-info /app/build-info
+COPY src/build-info /app/build-info
 
 EXPOSE 5555
 CMD [ "python3", "./requestcounter.py" ]
