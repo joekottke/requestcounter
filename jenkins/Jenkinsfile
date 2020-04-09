@@ -41,6 +41,14 @@ pipeline {
         }
       }
       steps {
+        container('jnlp') {
+          dir('src/build-info') {
+            sh 'echo ${GIT_COMMIT} > build.commithash'
+            sh 'echo ${SHORT_BRANCH_NAME} > build.branch'
+            sh 'echo ${TAG_NUMBER} > build.tagnumber'
+            sh 'md5sum ../requestcounter.py > build.signature'
+          }
+        }
         container('kaniko') {
           sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${TAG_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
         }
