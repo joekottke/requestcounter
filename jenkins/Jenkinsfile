@@ -9,14 +9,15 @@ pipeline {
   stages {
     stage('Branch Info') {
       steps {
-        echo "env.BRANCH_NAME: " + env.BRANCH_NAME
-        echo "env.GIT_BRANCH: " + env.GIT_BRANCH
         script {
           env.SHORT_BRANCH_NAME=sh(returnStdout: true, script: "git rev-parse --abbrev-ref HEAD").trim()
           if(env.SHORT_BRANCH_NAME.startsWith('deploy/')) {
             // Remove the 'deploy/' from the branch name to get network name
             def re = ~/^deploy\//
             env.NETWORK_FROM_BRANCH = env.SHORT_BRANCH_NAME - re
+
+            // Set the tag number (date-based)
+            env.TAG_NUMBER = sh(returnStdout: true, script: 'date +"%Y%m%d%H%m%S"').trim()
           }
         }
         echo "Printenv Output: "
@@ -41,7 +42,7 @@ pipeline {
       }
       steps {
         container('kaniko') {
-          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${BUILD_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
+          sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --destination=joekottke/requestcounter:buildtest-v${TAG_NUMBER} --destination=joekottke/requestcounter:buildtest-latest'
         }
       }
     }
