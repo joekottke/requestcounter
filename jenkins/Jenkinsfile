@@ -11,17 +11,12 @@ pipeline {
       steps {
         script {
           env.SHORT_BRANCH_NAME=sh(returnStdout: true, script: "git rev-parse --abbrev-ref HEAD").trim()
-          if(env.SHORT_BRANCH_NAME.startsWith('deploy/')) {
-            // Remove the 'deploy/' from the branch name to get network name
-            def re = ~/^deploy\//
-            env.NETWORK_FROM_BRANCH = env.SHORT_BRANCH_NAME - re
-          }
 
           // Set the tag number (date-based)
           env.TAG_NUMBER = sh(returnStdout: true, script: 'date +"%Y%m%d%H%m%S"').trim()
         }
         echo "Printenv Output: "
-        sh 'printenv'
+        sh 'printenv | sort'
       }
     }
     stage('Test') {
@@ -37,23 +32,17 @@ pipeline {
     stage('Build Container') {
       when {
         expression {
-          env.SHORT_BRANCH_NAME == 'master'
+          env.SHORT_BRANCH_NAME == 'deploy'
         }
       }
       steps {
         container('jnlp') {
-          script{
-            // Upload happens on the build master.  So we must accept the file, then stash it, then unstash it
-            def inputFile = input message: 'Upload signature file', parameters: [file(name: "build.signature")]
-            stash name: 'uploaded_signature', includes: inputFile.toString()
-          }
           dir('src/build-info') {
             sh 'echo ${GIT_COMMIT} > build.commithash'
             sh 'echo ${SHORT_BRANCH_NAME} > build.branch'
             sh 'echo ${TAG_NUMBER} > build.tagnumber'
             sh 'md5sum ../requestcounter.py > build.md5'
-            unstash 'uploaded_signature'
-            sh 'ls -alR'
+            sh 'for i in *; do echo "${i} ========="; cat ${i}; echo; done'
           }
         }
         container('kaniko') {
