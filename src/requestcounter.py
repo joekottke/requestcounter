@@ -1,6 +1,8 @@
 # Simple Request Counter
 
+import hashlib
 import os
+import pathlib
 import threading
 from flask import jsonify, Flask
 
@@ -49,4 +51,8 @@ def build_info():
     return jsonify(buildinfo)
 
 if __name__ == "__main__":
+    filepath = pathlib.Path(__file__).absolute()
+    contents = open(filepath).read()
+    md5hash = hashlib.md5(contents.encode()).hexdigest()
+    print(filepath, md5hash)
     app.run(host='0.0.0.0', port='5555')
