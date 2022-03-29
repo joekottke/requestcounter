@@ -6,11 +6,11 @@ from requestcounter import app
 class RequestCounterTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.client = app.test_client
-        self.client().get('/reset')
+        self.client = app.test_client()
+        await self.client().get('/reset')
 
     def test_get_home(self):
-        resp = self.client().get('/')
+        resp = await self.client().get('/')
         data = json.loads(resp.data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')

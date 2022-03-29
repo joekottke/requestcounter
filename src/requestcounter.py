@@ -4,7 +4,7 @@ import hashlib
 import os
 import pathlib
 import threading
-from flask import jsonify, Flask
+from quart import jsonify, Quart
 
 class AtomicCounter(object):
 
@@ -21,7 +21,7 @@ class AtomicCounter(object):
             self.value = num
 
 counter = AtomicCounter()
-app = Flask('requestcounter')
+app = Quart('requestcounter')
 
 buildinfo = {}
 for filename in os.listdir('build-info'):
@@ -30,29 +30,30 @@ for filename in os.listdir('build-info'):
     fh.close()
 
 @app.route('/')
-def index():
+async def index():
     counter.increment()
-    return jsonify({"theanswer": 42})
+    return {"theanswer": 42}
 
 
 @app.route('/metrics')
-def metrics():
-    return jsonify({"theanswer_count": counter.value})
+async def metrics():
+    return {"theanswer_count": counter.value}
 
 
 @app.route('/reset')
-def reset():
+async def reset():
     counter.reset()
-    return jsonify({"message": "reset complete"})
+    return {"message": "reset complete"}
 
 
 @app.route('/build-info')
-def build_info():
-    return jsonify(buildinfo)
+async def build_info():
+    return buildinfo
 
 if __name__ == "__main__":
     filepath = pathlib.Path(__file__).absolute()
     contents = open(filepath).read()
     md5hash = hashlib.md5(contents.encode()).hexdigest()
     print(filepath, md5hash)
-    app.run(host='0.0.0.0', port='5555')
+    port = os.getenv("PORT") if os.getenv("PORT") else '5555'
+    app.run(host='0.0.0.0', port=port)
