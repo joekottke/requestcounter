@@ -55,4 +55,5 @@ if __name__ == "__main__":
     contents = open(filepath).read()
     md5hash = hashlib.md5(contents.encode()).hexdigest()
     print(filepath, md5hash)
-    app.run(host='0.0.0.0', port='5555')
+    port = os.getenv("PORT") if os.getenv("PORT") else '5555'
+    app.run(host='0.0.0.0', port=port)
