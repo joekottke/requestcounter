@@ -20,7 +20,8 @@ class AtomicCounter(object):
         with self._lock:
             self.value = num
 
-counter = AtomicCounter()
+accepted_counter = AtomicCounter()
+denied_counter = AtomicCounter()
 app = Quart('requestcounter')
 
 buildinfo = {}
@@ -31,18 +32,22 @@ for filename in os.listdir('build-info'):
 
 @app.route('/')
 async def index():
-    counter.increment()
+    accepted_counter.increment()
     return {"theanswer": 42}
 
 
 @app.route('/metrics')
 async def metrics():
-    return {"theanswer_count": counter.value}
+    return {
+        "count_accepted": accepted_counter.value,
+        "count_denied": denied_counter.value
+    }
 
 
 @app.route('/reset')
 async def reset():
-    counter.reset()
+    accepted_counter.reset()
+    denied_counter.reset()
     return {"message": "reset complete"}
 
 
