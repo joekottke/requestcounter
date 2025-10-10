@@ -7,7 +7,7 @@ hpack==4.0.0
 hypercorn==0.14.3
 hyperframe==6.0.1
 itsdangerous==2.1.2
-Jinja2==3.1.2
+Jinja2==3.1.6
 MarkupSafe==2.1.2
 priority==2.0.0
 prometheus-client==0.16.0
