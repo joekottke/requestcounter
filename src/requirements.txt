@@ -13,5 +13,5 @@ priority==2.0.0
 prometheus-client==0.16.0
 quart==0.18.3
 toml==0.10.2
-Werkzeug==2.2.3
+Werkzeug==3.0.6
 wsproto==1.2.0
