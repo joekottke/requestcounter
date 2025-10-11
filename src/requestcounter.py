@@ -24,9 +24,10 @@ counter = AtomicCounter()
 app = Quart('requestcounter')
 
 buildinfo = {}
-buildinfo['build.commithash'] = os.environ['BUILD_COMMIT_HASH']
-buildinfo['build.date'] = os.environ['BUILD_DATE']
-buildinfo['build.signature'] = os.environ['BUILD_SIGNATURE']
+for filename in os.listdir('build-info'):
+    fh = open('build-info/' + filename) 
+    buildinfo[filename] = fh.read().strip()
+    fh.close()
 
 @app.route('/')
 async def index():
