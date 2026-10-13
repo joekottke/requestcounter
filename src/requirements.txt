@@ -12,5 +12,5 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 priority==2.0.0
 Quart==0.20.0
-Werkzeug==3.1.5
+Werkzeug==3.1.9
 wsproto==1.2.0
